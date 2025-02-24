@@ -1,101 +1,143 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { AlertCircle, Loader2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useState } from "react";
+
+export default function SentimentAnalyzer() {
+  const [text, setText] = useState("");
+  const [sentiment, setSentiment] = useState<{
+    label: string;
+    score: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const analyzeSentiment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSentiment(null);
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Analysis failed");
+      }
+
+      const data = await response.json();
+      setSentiment(data);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to analyze text. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSentimentColor = (score: string | undefined) => {
+    if (!score) return "bg-gray-100";
+    const scoreNum = parseFloat(score[0]);
+    if (scoreNum >= 4) return "bg-green-100 text-green-800";
+    if (scoreNum >= 3) return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
+  };
+
+  const getSentimentIcon = (score: string | undefined) => {
+    if (!score) return null;
+    const scoreNum = parseFloat(score[0]);
+    return scoreNum >= 3 ? (
+      <ThumbsUp className="w-5 h-5" />
+    ) : (
+      <ThumbsDown className="w-5 h-5" />
+    );
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Sentiment Analysis
+          </h1>
+          <p className="text-lg text-gray-600">
+            Enter your text below to analyze its sentiment
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <form onSubmit={analyzeSentiment} className="space-y-6">
+          <div className="relative">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Type or paste your text here... (maximum ~2000 characters)"
+              className={`w-full h-40 px-4 py-3 border border-gray-300 rounded-lg shadow-sm 
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                        transition duration-200 ease-in-out resize-none
+                        ${text.length > 2000 ? "border-yellow-400" : ""}`}
+              disabled={loading}
+            />
+            <div className="absolute bottom-3 right-3 text-sm text-gray-500">
+              {text.length} / 2000 characters
+              {text.length > 2000 && (
+                <span className="text-yellow-600 ml-2">
+                  (Text will be truncated)
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !text.trim()}
+            className="w-full flex items-center justify-center px-4 py-3 
+                     bg-blue-600 text-white rounded-lg font-medium
+                     hover:bg-blue-700 focus:outline-none focus:ring-2 
+                     focus:ring-offset-2 focus:ring-blue-500
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     transition duration-200 ease-in-out"
+          >
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              "Analyze Sentiment"
+            )}
+          </button>
+        </form>
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 rounded-lg flex items-center gap-3 text-red-700">
+            <AlertCircle className="w-5 h-5" />
+            {error}
+          </div>
+        )}
+
+        {sentiment && !error && (
+          <div className="mt-8 space-y-4 animate-fade-in">
+            <div
+              className={`p-6 rounded-lg ${getSentimentColor(
+                sentiment?.label
+              )} flex items-center justify-between`}
+            >
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Sentiment Score: {sentiment?.label}
+                </h3>
+                <p className="text-sm opacity-75">
+                  Confidence: {(sentiment?.score * 100).toFixed(1)}%
+                </p>
+              </div>
+              {getSentimentIcon(sentiment?.label)}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
