@@ -79,7 +79,7 @@ export default function SentimentAnalyzer() {
               placeholder="Type or paste your text here... (maximum ~2000 characters)"
               className={`w-full h-40 px-4 py-3 border border-gray-300 rounded-lg shadow-sm 
                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                        transition duration-200 ease-in-out resize-none
+                        transition duration-200 ease-in-out resize-none text-black
                         ${text.length > 2000 ? "border-yellow-400" : ""}`}
               disabled={loading}
             />
