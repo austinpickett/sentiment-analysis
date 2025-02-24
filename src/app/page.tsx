@@ -66,9 +66,6 @@ export default function SentimentAnalyzer() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Sentiment Analysis
           </h1>
-          <p className="text-lg text-gray-600">
-            Enter your text below to analyze its sentiment
-          </p>
         </div>
 
         <form onSubmit={analyzeSentiment} className="space-y-6">
@@ -103,11 +100,7 @@ export default function SentimentAnalyzer() {
                      disabled:opacity-50 disabled:cursor-not-allowed
                      transition duration-200 ease-in-out"
           >
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              "Analyze Sentiment"
-            )}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "ANALYZE"}
           </button>
         </form>
 
